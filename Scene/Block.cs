@@ -2,8 +2,6 @@
 using UnityEngine;
 namespace MetroTileEditor
 {
-    [RequireComponent(typeof(MeshFilter))]
-    [RequireComponent(typeof(MeshCollider))]
     public class Block : MonoBehaviour
     {
         [SerializeField]
