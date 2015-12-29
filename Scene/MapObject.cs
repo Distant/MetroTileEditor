@@ -14,11 +14,13 @@ namespace MetroTileEditor
         private static Vector3 DEFAULT_GRID_SIZE = new Vector3(20, 20, 7);
 
         private bool isEnabled;
+        [NonSerialized]
         public bool active;
         public string MapData;
         public string mapName;
         public bool initialized;
 
+        [NonSerialized]
         public bool inPlayMode;
 
         private bool attemptedDeserialize;
@@ -26,6 +28,7 @@ namespace MetroTileEditor
 
         [NonSerialized]
         public BlockData[,,] blockDataArray;
+        [HideInInspector]
         public MapSaveData serializedMapData;
 
         [SerializeField]
@@ -43,7 +46,7 @@ namespace MetroTileEditor
         public bool GridEnabled
         {
             get { return gridModel.gridEnabled; }
-            set { gridModel.gridEnabled = value; }
+            set { gridModel.gridEnabled = value; } 
         }
 
         public int SelectedLayer
@@ -148,6 +151,7 @@ namespace MetroTileEditor
         public void SetActive()
         {
             active = true;
+            Debug.Log("new map selected" + active);
             GridEnabled = true;
         }
 
@@ -191,16 +195,6 @@ namespace MetroTileEditor
             EditorMap.BlockUpdated(blockDataArray[x, y, z], g);
         }
 
-        public void GenerateColliders()
-        {
-            EditorMap.GenerateColliders(blockDataArray, mapName);
-        }
-
-        public void GenerateMesh()
-        {
-            EditorMap.GenerateMesh(blockDataArray, mapName);
-        }
-
         public void DeleteBlock(GameObject g)
         {
             Vector3 raw = g.transform.position;
@@ -214,8 +208,10 @@ namespace MetroTileEditor
 
         public void OnBeforeSerialize()
         {
-            if (blockDataArray != null)
+            if (blockDataArray != null) 
+            {
                 serializedMapData = GenerateSaveData();
+            }
         }
 
         public void OnAfterDeserialize()
@@ -231,7 +227,7 @@ namespace MetroTileEditor
         public void Load(MapSaveData saveData, bool reDraw)
         {
             blockDataArray = saveData.Get3DData();
-            Debug.Log("Load. Blockdata null? " + (blockDataArray == null));
+            Debug.Log("Load(): Blockdata null: " + (blockDataArray == null));
             if (reDraw) EditorMap.DrawBlocks(blockDataArray, mapName);
             else EditorMap.ReAttachBlocks(blockDataArray, transform.position, mapName);
             gridModel = new GridData(false, saveData.x, saveData.y, saveData.z, saveData.selectedLayer);
@@ -261,7 +257,7 @@ namespace MetroTileEditor
         {
             inPlayMode = true;
             Debug.Log("Map: " + name + " entering play mode");
-            SaveFile(Application.persistentDataPath + "/temp/" + name + "_temp.map");
+            SaveTempData(Application.persistentDataPath + "/temp/" + name + "_temp.map");
         }
 
         public void OnAfterExitPlayMode()
@@ -271,6 +267,7 @@ namespace MetroTileEditor
             LoadTempData();
             EditorMap.ReAttachBlocks(blockDataArray, transform.position, mapName);
             GridRenderer.SetDataModel(gridModel);
+            GridEnabled = false;
         }
 
         public void LoadTempData()
@@ -281,7 +278,7 @@ namespace MetroTileEditor
             gridModel = new GridData(true, tempData.x, tempData.y, tempData.z, tempData.selectedLayer);
         }
 
-        public void SaveFile(string path)
+        public void SaveTempData(string path)
         {
             if (path.Length != 0)
             {
@@ -312,7 +309,7 @@ namespace MetroTileEditor
             if (!Application.isPlaying)
             {
                 Debug.Log("Destroyed");
-                SaveFile(Application.persistentDataPath + "/temp/" + name + "_temp.map");
+                SaveTempData(Application.persistentDataPath + "/temp/" + name + "_temp.map");
             }
         }
     }
