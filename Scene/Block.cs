@@ -51,26 +51,6 @@ namespace MetroTileEditor
             return string.Empty;
         }
 
-        public virtual void MouseOverPaint(RaycastHit hit, FaceDirection hitDirection)
-        {
-            MouseOverPreviewRenderer.MouseOverPaint(hit, hitDirection);
-        }
-
-        public virtual void MouseOverPlace(MeshRenderer cubePreview, RaycastHit hit, FaceDirection hitDirection)
-        {
-            MouseOverPreviewRenderer.MouseOverPlace(cubePreview, hit, hitDirection);
-        }
-
-        public virtual void MouseOverDelete(RaycastHit hit, FaceDirection hitDirection)
-        {
-            MouseOverPreviewRenderer.MouseOverDelete(hit, hitDirection);
-        }
-
-        public virtual void MouseOverPick(RaycastHit hit, FaceDirection hitDirection)
-        {
-            MouseOverPreviewRenderer.MouseOverPick(hit, hitDirection);
-        }
-
         public int GetMaterialIndex(RaycastHit hit)
         {
             if (hit.collider is MeshCollider)

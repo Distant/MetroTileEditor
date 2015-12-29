@@ -5,6 +5,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Collections.Generic;
 using MetroTileEditor.Utils;
+using MetroTileEditor.Generation;
+using MetroTileEditor.Renderers;
 
 namespace MetroTileEditor.Editors
 {
@@ -188,12 +190,12 @@ namespace MetroTileEditor.Editors
 
                 if (GUILayout.Button("Generate Colliders"))
                 {
-                    currentMapObj.GenerateColliders();
+                    MeshGenerator.GenerateColliders(currentMapObj.blockDataArray, currentMapObj.mapName);
                 }
 
                 if (GUILayout.Button("Generate Mesh"))
                 {
-                    currentMapObj.GenerateMesh();
+                    MeshGenerator.GenerateMesh(currentMapObj.blockDataArray, currentMapObj.mapName);
                 }
 
                 if (GUILayout.Button("Recreate Map"))
@@ -309,13 +311,41 @@ namespace MetroTileEditor.Editors
                     if (GUILayout.Button("Okay")) { New(newName); creatingNew = false; }
                     if (GUILayout.Button("Cancel")) creatingNew = false;
                     GUILayout.EndHorizontal();
-                }
+                } 
             }
             GUILayout.Label("Loaded Map: " + Path.GetFileName(loadedMapPath));
         }
 
         void OnSceneGUI(SceneView sceneView)
         {
+            if (Selection.activeObject != null && Selection.activeObject is GameObject)
+            {
+                if (currentMapObj == null || Selection.activeObject != currentMapObj.gameObject)
+                {
+                    MapObject map = Selection.activeGameObject.GetComponent<MapObject>();
+                    if (map)
+                    {
+                        if (currentMapObj) currentMapObj.SetInactive();
+                        map.SetActive();
+                        currentMapObj = map;
+                        loadedMapPath = string.Empty;
+                        editing = false;
+                        BlockEditWindow.currentData = null;
+                    }
+                    if (currentMapObj) currentMapObj.SetInactive();
+                    else currentMapObj = null;
+                    editing = false;
+                    BlockEditWindow.currentData = null;
+                }
+            }
+            else
+            {
+                if (currentMapObj != null) currentMapObj.SetInactive();
+                currentMapObj = null;
+                editing = false;
+                BlockEditWindow.currentData = null;
+            }
+
             if (editing)
             {
                 if (Event.current.type == EventType.keyDown)
@@ -360,7 +390,7 @@ namespace MetroTileEditor.Editors
                                 {
                                     if (block)
                                     {
-                                        block.MouseOverPaint(hit, hitDirection);
+                                        MouseOverPreviewRenderer.MouseOverPaint(hit, hitDirection);
                                     }
 
                                     break;
@@ -370,7 +400,7 @@ namespace MetroTileEditor.Editors
                                 {
                                     if (block)
                                     {
-                                        block.MouseOverPlace(cubePreview, hit, hitDirection);
+                                        MouseOverPreviewRenderer.MouseOverPlace(cubePreview, hit, hitDirection);
                                     }
 
                                     else if (mouseOverObj == currentMapObj.GridRenderer.gameObject && currentMapObj.GridEnabled)
@@ -386,7 +416,7 @@ namespace MetroTileEditor.Editors
                                 {
                                     if (block)
                                     {
-                                        block.MouseOverDelete(hit, hitDirection);
+                                        MouseOverPreviewRenderer.MouseOverDelete(hit, hitDirection);
                                     }
                                     break;
                                 }
@@ -395,7 +425,7 @@ namespace MetroTileEditor.Editors
                                 {
                                     if (block)
                                     {
-                                        block.MouseOverPick(hit, hitDirection);
+                                        MouseOverPreviewRenderer.MouseOverPick(hit, hitDirection);
                                     }
                                     break;
                                 }
