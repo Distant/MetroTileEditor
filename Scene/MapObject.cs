@@ -75,7 +75,7 @@ namespace MetroTileEditor
 
             EditorMap.DrawBlocks(blockDataArray, mapName);
             GridRenderer.SetDataModel(gridModel);
-            initialized = true;
+            //initialized = true;
         }
 
         public void OnStartup()
@@ -91,6 +91,8 @@ namespace MetroTileEditor
 
         void OnEnable()
         {
+
+            // no longer initialized, need to handle on startup
             if (initialized)
             {
                 if (!inPlayMode)
