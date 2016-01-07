@@ -33,7 +33,7 @@ namespace MetroTileEditor
 
         [SerializeField]
         public GridData gridModel;
-        private GridRenderer gridRenderer;
+        private GridRenderer gridRenderer;  
         public GridRenderer GridRenderer
         {
             get
@@ -47,6 +47,7 @@ namespace MetroTileEditor
         {
             get { return gridModel.gridEnabled; }
             set { gridModel.gridEnabled = value; } 
+            set { gridModel.gridEnabled = value; GridRenderer.SetDataModel(gridModel); } 
         }
 
         public int SelectedLayer
