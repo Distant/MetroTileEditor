@@ -38,21 +38,30 @@ namespace MetroTileEditor
             Texture2D[] sheets = Resources.LoadAll<Texture2D>("Materials/TileSheets");
             foreach (Texture2D sheet in sheets.Where(sheet => !sheet.name.Contains("_normal") && !sheet.name.Contains("_emission")))
             {
-                for (int i = 0; i < sheet.height / 16; i++)
+                int size;
+                string[] parameters = sheet.name.Split('_');
+                if (!int.TryParse(parameters.Last(), out size)) size = 16;
+                
+                for (int i = 0; i < sheet.height / size; i++)
                 {
-                    for (int j = 0; j < sheet.width / 16; j++)
+                    for (int j = 0; j < sheet.width / size; j++)
                     {
 
                         Material mat = new Material(DefaultMat);
-                        Texture2D tex = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+                        Texture2D tex = new Texture2D(size, size, TextureFormat.ARGB32, false);
                         tex.filterMode = FilterMode.Point;
-                        tex.SetPixels(sheet.GetPixels(i * 16, j * 16, 16, 16));
+                        tex.SetPixels(sheet.GetPixels(i * size, j * size, size, size));   
                         tex.Apply();
 
-                        Texture2D normalSheet = sheets.First(s => s.name.Equals(sheet.name + "_normal"));
+                        Texture2D normalSheet = null;
+                        for (int t = 0; t < sheets.Length; t++)
+                        {
+                            if (sheets[t].name.Equals(sheet.name + "_normal")) normalSheet = sheets[t];
+                        }
+
                         if (normalSheet != null)
                         {
-                            Texture2D norm = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+                            Texture2D norm = new Texture2D(size, size, TextureFormat.ARGB32, false);
                             norm.filterMode = FilterMode.Point;
 
                             Color colour = new Color();
@@ -60,10 +69,10 @@ namespace MetroTileEditor
                             {
                                 for (int y = 0; y < norm.height; y++)
                                 {
-                                    colour.r = normalSheet.GetPixel(x + (i * 16), y + (j * 16)).g;
+                                    colour.r = normalSheet.GetPixel(x + (i * size), y + (j * size)).g;
                                     colour.g = colour.r;
                                     colour.b = colour.r;
-                                    colour.a = normalSheet.GetPixel(x + (i * 16), y + (j * 16)).r;
+                                    colour.a = normalSheet.GetPixel(x + (i * size), y + (j * size)).r;
                                     norm.SetPixel(x, y, colour);
 
                                 }
@@ -72,14 +81,19 @@ namespace MetroTileEditor
                             mat.SetTexture("_BumpMap", norm);
                         }
 
-                        Texture2D emissionSheet = sheets.First(s => s.name.Equals(sheet.name + "_emission"));
+                        Texture2D emissionSheet = null;
+                        for (int t = 0; t < sheets.Length; t++)
+                        {
+                            if (sheets[t].name.Equals(sheet.name + "_emission")) emissionSheet = sheets[t];
+                        }
+
                         if (emissionSheet != null)
                         {
-                            if (emissionSheet.GetPixel(i * 16, j * 16).a != 0)
+                            if (emissionSheet.GetPixel(i * size, j * size).a != 0)
                             {
-                                Texture2D emission = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+                                Texture2D emission = new Texture2D(size, size, TextureFormat.ARGB32, false);
                                 emission.filterMode = FilterMode.Point;
-                                emission.SetPixels(emissionSheet.GetPixels(i * 16, j * 16, 16, 16));
+                                emission.SetPixels(emissionSheet.GetPixels(i * size, j * size, size, size));
                                 emission.Apply();
                                 mat.SetTexture("_EmissionMap", emission);
                             }
