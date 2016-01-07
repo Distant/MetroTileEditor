@@ -46,7 +46,6 @@ namespace MetroTileEditor
         public bool GridEnabled
         {
             get { return gridModel.gridEnabled; }
-            set { gridModel.gridEnabled = value; } 
             set { gridModel.gridEnabled = value; GridRenderer.SetDataModel(gridModel); } 
         }
 
@@ -116,16 +115,6 @@ namespace MetroTileEditor
                 else attemptedDeserialize = false;
                 isEnabled = true;
             }
-        }
-
-        void Start()
-        {
-
-        }
-
-        void Update()
-        {
-
         }
 
         public void SetGridSize(int x, int y, int z)
