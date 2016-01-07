@@ -32,7 +32,7 @@ namespace MetroTileEditor.Editors
         }
 
         void OnDisable()
-        {
+        { 
             SceneView.onSceneGUIDelegate -= OnSceneGUI;
         }
 
@@ -42,6 +42,8 @@ namespace MetroTileEditor.Editors
             {
                 GUILayout.Label(currentData.blockType);
                 currentData.breakable = EditorGUILayout.Toggle("Breakable", currentData.breakable);
+                currentData.isTriggerOnly = EditorGUILayout.Toggle("Is Trigger (no collision)", currentData.isTriggerOnly);
+                currentData.excludeFromMesh = EditorGUILayout.Toggle("Exclude from mesh", currentData.excludeFromMesh);
             }
         }
 
