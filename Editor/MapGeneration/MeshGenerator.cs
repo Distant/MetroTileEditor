@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
-using System;
 
 namespace MetroTileEditor.Generation
 {
@@ -14,6 +12,7 @@ namespace MetroTileEditor.Generation
             Block[] cols = mapParent.GetComponentsInChildren<Block>();
             for (int c = 0; c < cols.Length; c++) GameObject.DestroyImmediate(cols[c].gameObject);
 
+            GameObject finalMesh = new GameObject();
             List<CombineInstance> combines = new List<CombineInstance>();
 
             for (int i = 0; i < blockDataArray.GetLength(0); i++)
@@ -66,16 +65,46 @@ namespace MetroTileEditor.Generation
                             gMesh.uv = newUVs.ToArray();
                             gMeshFilter.mesh = gMesh;
 
-                            for (int x = 0; x < 6; x++)
+                            if (curBlockData.excludeFromMesh)
                             {
-                                string s = curBlockData.materialIDs[x];
-                                if (!string.IsNullOrEmpty(s))
+                                List<CombineInstance> submeshes = new List<CombineInstance>();
+                                for (int x = 0; x < 6; x++)
                                 {
-                                    CombineInstance inst = new CombineInstance();
-                                    inst.mesh = gMesh;
-                                    inst.subMeshIndex = x;
-                                    inst.transform = gMeshFilter.transform.localToWorldMatrix;
-                                    combines.Add(inst);
+                                    string s = curBlockData.materialIDs[x];
+                                    if (!string.IsNullOrEmpty(s))
+                                    {
+                                        CombineInstance inst = new CombineInstance();
+                                        inst.mesh = gMesh;
+                                        inst.subMeshIndex = x;
+                                        inst.transform = g.transform.worldToLocalMatrix * gMeshFilter.transform.localToWorldMatrix;
+                                        submeshes.Add(inst);
+                                    }
+                                }
+
+                                Mesh combinedMesh = new Mesh();
+                                combinedMesh.CombineMeshes(submeshes.ToArray(), true);
+                                gMeshFilter.sharedMesh = combinedMesh;
+                                GameObject.DestroyImmediate(g.GetComponent<Block>());
+                                GameObject.DestroyImmediate(g.GetComponent<MeshRenderer>());
+                                GameObject.DestroyImmediate(g.GetComponent<MeshCollider>());
+                                g.AddComponent<MeshRenderer>();
+                                g.isStatic = false;
+                                g.name = i + "_" + j + "_" + k;
+                                g.transform.parent = finalMesh.transform;
+                            }
+                            else
+                            {
+                                for (int x = 0; x < 6; x++)
+                                {
+                                    string s = curBlockData.materialIDs[x];
+                                    if (!string.IsNullOrEmpty(s))
+                                    {
+                                        CombineInstance inst = new CombineInstance();
+                                        inst.mesh = gMesh;
+                                        inst.subMeshIndex = x;
+                                        inst.transform = gMeshFilter.transform.localToWorldMatrix;
+                                        combines.Add(inst);
+                                    }
                                 }
                             }
                         }
@@ -83,7 +112,6 @@ namespace MetroTileEditor.Generation
                 }
             }
 
-            GameObject finalMesh = new GameObject();
             Mesh newMesh = new Mesh();
             newMesh.CombineMeshes(combines.ToArray(), true);
             Unwrapping.GenerateSecondaryUVSet(newMesh);
@@ -119,7 +147,7 @@ namespace MetroTileEditor.Generation
             {
                 for (int j = 0; j < blockDataArray.GetLength(1); j++)
                 {
-                    if (blockDataArray[i, j, k] != null && blockDataArray[i, j, k].placed)
+                    if (blockDataArray[i, j, k] != null && blockDataArray[i, j, k].placed && !blockDataArray[i, j, k].isTriggerOnly)
                     {
                         GameObject g = new GameObject();
                         g.name = "collider";
@@ -127,6 +155,7 @@ namespace MetroTileEditor.Generation
                         g.transform.parent = colliderParent.transform;
 
                         ColliderData data = blockDataArray[i, j, k].colliderData;
+                        Collider2D collider;
                         if (data != null && data.orientations != null && data.orientations.Length > 0)
                         {
                             var poly = g.AddComponent<PolygonCollider2D>();
@@ -136,11 +165,14 @@ namespace MetroTileEditor.Generation
                                 verts[v] = data.verts[v];
                             }
                             poly.points = verts;
+                            collider = poly;
                         }
                         else
                         {
-                            g.AddComponent<BoxCollider2D>();
+                            collider = g.AddComponent<BoxCollider2D>();
                         }
+
+                        if (blockDataArray[i, j, k].isTriggerOnly) collider.isTrigger = true;
 
                         TileData tileInfo = g.AddComponent<TileData>();
                         LoadBlockData(tileInfo, blockDataArray[i, j, k]);
