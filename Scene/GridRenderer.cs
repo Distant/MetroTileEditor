@@ -28,6 +28,8 @@ namespace MetroTileEditor.Renderers
         {
             col.size = new Vector3(m.gridX, 0, m.gridY);
             col.center = new Vector3(m.gridX / 2, -1 * m.SelectedLayer, m.gridY / 2);
+            if (!m.gridEnabled) col.enabled = false;
+            else col.enabled = true;
         }
 
         void CreateLineMaterial()
