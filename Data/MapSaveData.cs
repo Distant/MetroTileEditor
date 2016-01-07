@@ -50,10 +50,18 @@ namespace MetroTileEditor
             int count = 0;
             for (int i = 0; i < blockData1D.Length; i++)
             {
-                if (blockData1D[i] != null && blockData1D[i].placed)
-                    count++;
+                if (blockData1D[i] != null)
+                {
+                    if (blockData1D[i].placed)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        blockData1D[i] = null;
+                    }
+                }   
             }
-            Debug.Log("Get save data: " + count + " blocks placed");
             return ArrayUtils.Array1DTo3D(blockData1D, x, y, z);
         }
     }
