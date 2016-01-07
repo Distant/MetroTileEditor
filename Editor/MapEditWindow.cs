@@ -132,7 +132,7 @@ namespace MetroTileEditor.Editors
             else lastTool = Tools.current;
         }
 
-        void OnGUI()
+        public void CheckMapSelection()
         {
             if (Selection.activeObject != null && Selection.activeObject is GameObject)
             {
@@ -145,12 +145,17 @@ namespace MetroTileEditor.Editors
                         map.SetActive();
                         currentMapObj = map;
                         loadedMapPath = string.Empty;
-                        editing = false;
+                        editing = true;
                         BlockEditWindow.currentData = null;
                     }
-                    else currentMapObj = null;
+                    else { if (currentMapObj) currentMapObj.SetInactive(); currentMapObj = null; }
                     editing = false;
                     BlockEditWindow.currentData = null;
+                }
+
+                if (currentMapObj != null && Selection.activeObject == currentMapObj.gameObject)
+                {
+                    editing = true;
                 }
             }
             else
@@ -160,6 +165,11 @@ namespace MetroTileEditor.Editors
                 editing = false;
                 BlockEditWindow.currentData = null;
             }
+        }
+
+        void OnGUI()
+        {
+            CheckMapSelection();
 
             if (editing && currentMapObj != null)
             {
@@ -296,7 +306,7 @@ namespace MetroTileEditor.Editors
 
             else if (currentMapObj != null)
             {
-                if (GUILayout.Button("Edit")) editing = true;
+                if (GUILayout.Button("Edit")) { editing = true; currentMapObj.SetActive(); }
             }
             else
             {
@@ -311,40 +321,14 @@ namespace MetroTileEditor.Editors
                     if (GUILayout.Button("Okay")) { New(newName); creatingNew = false; }
                     if (GUILayout.Button("Cancel")) creatingNew = false;
                     GUILayout.EndHorizontal();
-                } 
+                }
             }
             GUILayout.Label("Loaded Map: " + Path.GetFileName(loadedMapPath));
         }
 
         void OnSceneGUI(SceneView sceneView)
         {
-            if (Selection.activeObject != null && Selection.activeObject is GameObject)
-            {
-                if (currentMapObj == null || Selection.activeObject != currentMapObj.gameObject)
-                {
-                    MapObject map = Selection.activeGameObject.GetComponent<MapObject>();
-                    if (map)
-                    {
-                        if (currentMapObj) currentMapObj.SetInactive();
-                        map.SetActive();
-                        currentMapObj = map;
-                        loadedMapPath = string.Empty;
-                        editing = false;
-                        BlockEditWindow.currentData = null;
-                    }
-                    if (currentMapObj) currentMapObj.SetInactive();
-                    else currentMapObj = null;
-                    editing = false;
-                    BlockEditWindow.currentData = null;
-                }
-            }
-            else
-            {
-                if (currentMapObj != null) currentMapObj.SetInactive();
-                currentMapObj = null;
-                editing = false;
-                BlockEditWindow.currentData = null;
-            }
+            CheckMapSelection();
 
             if (editing)
             {
