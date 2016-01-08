@@ -18,7 +18,6 @@ namespace MetroTileEditor
         public bool active;
         public string MapData;
         public string mapName;
-        public bool initialized;
 
         [NonSerialized]
         public bool inPlayMode;
@@ -26,14 +25,11 @@ namespace MetroTileEditor
         private bool attemptedDeserialize;
         private bool deserializeFailed;
 
-        [NonSerialized]
-        public BlockData[,,] blockDataArray;
-        [HideInInspector]
-        public MapSaveData serializedMapData;
+        public BlockDataArray blocks;
 
         [SerializeField]
         public GridData gridModel;
-        private GridRenderer gridRenderer;  
+        private GridRenderer gridRenderer;
         public GridRenderer GridRenderer
         {
             get
@@ -46,7 +42,7 @@ namespace MetroTileEditor
         public bool GridEnabled
         {
             get { return gridModel.gridEnabled; }
-            set { gridModel.gridEnabled = value; GridRenderer.SetDataModel(gridModel); } 
+            set { gridModel.gridEnabled = value; GridRenderer.SetDataModel(gridModel); }
         }
 
         public int SelectedLayer
@@ -70,51 +66,21 @@ namespace MetroTileEditor
             Debug.Log("init");
             mapName = name;
             gridModel = new GridData(false, (int)DEFAULT_GRID_SIZE.x, (int)DEFAULT_GRID_SIZE.y, (int)DEFAULT_GRID_SIZE.z, 2);
-            blockDataArray = new BlockData[gridModel.gridX, gridModel.gridY, gridModel.layers];
-            serializedMapData = new MapSaveData(blockDataArray, blockDataArray.GetLength(0), blockDataArray.GetLength(1), blockDataArray.GetLength(2), gridModel.SelectedLayer);
+            blocks = new BlockDataArray(gridModel.gridX, gridModel.gridY, gridModel.layers);
 
-            EditorMap.DrawBlocks(blockDataArray, mapName);
+            EditorMap.DrawBlocks(blocks, mapName);
             GridRenderer.SetDataModel(gridModel);
-            //initialized = true;
         }
 
         public void OnStartup()
         {
-            LoadTempData();
-            EditorMap.ReAttachBlocks(blockDataArray, transform.position, mapName);
+            EditorMap.ReAttachBlocks(blocks, transform.position, mapName);
             GridRenderer.SetDataModel(gridModel);
         }
 
         void Awake()
         {
-        }
 
-        void OnEnable()
-        {
-
-            // no longer initialized, need to handle on startup
-            if (initialized)
-            {
-                if (!inPlayMode)
-                {
-                    if (deserializeFailed)
-                    {
-                        Debug.Log("Map Object OnEnable: AfterDeserialize failed");
-                        Load(serializedMapData, false);
-                        attemptedDeserialize = false;
-                    }
-                }
-
-                if (!attemptedDeserialize)
-                {
-                    Debug.Log("Map Object OnEnable: no deserializtion attempted");
-                    LoadTempData();
-                    EditorMap.ReAttachBlocks(blockDataArray, transform.position, mapName);
-                    GridRenderer.SetDataModel(gridModel);
-                }
-                else attemptedDeserialize = false;
-                isEnabled = true;
-            }
         }
 
         public void SetGridSize(int x, int y, int z)
@@ -125,20 +91,20 @@ namespace MetroTileEditor
             GridRenderer.DataModelChanged();
 
             BlockData[,,] tempData = new BlockData[x, y, z];
-            blockDataArray = ArrayUtils.CopyArray(blockDataArray, tempData);
-            EditorMap.DrawBlocks(blockDataArray, mapName);
+            // TODO
+            //blockDataArray = ArrayUtils.CopyArray(blockDataArray, tempData);
+            EditorMap.DrawBlocks(blocks, mapName);
         }
 
         public void Clear()
         {
-            blockDataArray = new BlockData[gridModel.gridX, gridModel.gridY, gridModel.layers];
+            blocks = new BlockDataArray(gridModel.gridX, gridModel.gridY, gridModel.layers);
         }
 
         public void DrawBlocks()
         {
-            EditorMap.DrawBlocks(blockDataArray, mapName);
+            EditorMap.DrawBlocks(blocks, mapName);
         }
-
 
         public void SetActive()
         {
@@ -161,18 +127,19 @@ namespace MetroTileEditor
 
             if (x >= 0 && y >= 0 && x < gridModel.gridX && y < gridModel.gridY && z >= 0 && z < gridModel.layers)
             {
-                if (blockDataArray[x, y, z] == null || !blockDataArray[x, y, z].placed)
+                if (blocks.GetBlock(x, y, z) == null || !blocks.GetBlock(x, y, z).placed)
                 {
-                    blockDataArray[x, y, z] = new BlockData();
-                    if (!blockDataArray[x, y, z].placed)
+                    BlockData data = new BlockData();
+                    data.placed = true;
+                    blocks.SetBlock(x, y, z, data);
+                    if (blocks.GetBlock(x, y, z).placed)
                     {
-                        blockDataArray[x, y, z].placed = true;
-                        blockDataArray[x, y, z].blockType = blockType;
-                        EditorMap.BlockAdded(x, y, z, blockDataArray[x, y, z]);
+                        blocks.GetBlock(x, y, z).placed = true;
+                        blocks.GetBlock(x, y, z).blockType = blockType;
+                        EditorMap.BlockAdded(x, y, z, blocks.GetBlock(x, y, z));
                     }
-                    return blockDataArray[x, y, z];
+                    return blocks.GetBlock(x, y, z);
                 }
-
             }
             return null;
         }
@@ -184,7 +151,7 @@ namespace MetroTileEditor
             int y = (int)(raw.y - transform.position.y);
             int z = (int)(raw.z + 1 - transform.position.z);
 
-            EditorMap.BlockUpdated(blockDataArray[x, y, z], g);
+            EditorMap.BlockUpdated(blocks.GetBlock(x, y, z), g);
         }
 
         public void DeleteBlock(GameObject g)
@@ -193,48 +160,34 @@ namespace MetroTileEditor
             int x = (int)(raw.x - transform.position.x);
             int y = (int)(raw.y - transform.position.y);
             int z = (int)(raw.z + 1 - transform.position.z);
-            blockDataArray[x, y, z] = null;
+            blocks.DeleteBlock(x, y, z);
             EditorMap.BlockDeleted(x, y, z, g);
         }
 
-
-        public void OnBeforeSerialize()
+        public void Load(bool reDraw)
         {
-            if (blockDataArray != null) 
-            {
-                serializedMapData = GenerateSaveData();
-            }
-        }
-
-        public void OnAfterDeserialize()
-        {
-            attemptedDeserialize = true;
-            if (editorMap != null && gridRenderer != null)
-            {
-                Load(serializedMapData, false);
-            }
-            else deserializeFailed = true;
-        }
-
-        public void Load(MapSaveData saveData, bool reDraw)
-        {
-            blockDataArray = saveData.Get3DData();
-            Debug.Log("Load(): Blockdata null: " + (blockDataArray == null));
-            if (reDraw) EditorMap.DrawBlocks(blockDataArray, mapName);
-            else EditorMap.ReAttachBlocks(blockDataArray, transform.position, mapName);
-            gridModel = new GridData(false, saveData.x, saveData.y, saveData.z, saveData.selectedLayer);
+            Debug.Log("Load(): Blockdata null: " + (blocks == null));
+            if (reDraw) EditorMap.DrawBlocks(blocks, mapName);
+            else EditorMap.ReAttachBlocks(blocks, transform.position, mapName);
+            gridModel = new GridData(false, blocks.Width, blocks.Height, blocks.Depth, 0);
             GridRenderer.SetDataModel(gridModel);
+        }
+
+        public void Load(BlockDataArray saveData, bool reDraw)
+        {
+            blocks = saveData;
+            Load(reDraw);
         }
 
         public void RecreateMap()
         {
-            blockDataArray = new BlockData[gridModel.gridX, gridModel.gridY, gridModel.layers];
-            EditorMap.RecreateMap(blockDataArray, transform.position, name);
+            blocks = new BlockDataArray(gridModel.gridX, gridModel.gridY, gridModel.layers);
+            EditorMap.RecreateMap(blocks, transform.position, name);
         }
 
         public MapSaveData GenerateSaveData()
         {
-            return new MapSaveData(blockDataArray, gridModel.SelectedLayer);
+            return new MapSaveData(blocks, gridModel.SelectedLayer);
         }
 
         public void EnsureGridModel()
@@ -245,41 +198,35 @@ namespace MetroTileEditor
             }
         }
 
+        public void OnBeforeSerialize()
+        {
+
+        }
+
+        public void OnAfterDeserialize()
+        {
+            attemptedDeserialize = true;
+            if (editorMap != null && gridRenderer != null)
+            {
+                blocks.Clean();
+                Load(false);
+            }
+            else deserializeFailed = true;
+        }
+
         public void OnBeforeEnterPlayMode()
         {
+            blocks.Clean();
             inPlayMode = true;
-            Debug.Log("Map: " + name + " entering play mode");
-            SaveTempData(Application.persistentDataPath + "/temp/" + name + "_temp.map");
         }
 
         public void OnAfterExitPlayMode()
         {
             inPlayMode = false;
             Debug.Log("Map: " + name + " exiting play mode");
-            LoadTempData();
-            EditorMap.ReAttachBlocks(blockDataArray, transform.position, mapName);
+            EditorMap.ReAttachBlocks(blocks, transform.position, mapName);
             GridRenderer.SetDataModel(gridModel);
             GridEnabled = false;
-        }
-
-        public void LoadTempData()
-        {
-            Debug.Log("Loading temp data");
-            MapSaveData tempData = LoadFile(Application.persistentDataPath + "/temp/" + name + "_temp.map");
-            blockDataArray = tempData.Get3DData();
-            gridModel = new GridData(true, tempData.x, tempData.y, tempData.z, tempData.selectedLayer);
-        }
-
-        public void SaveTempData(string path)
-        {
-            if (path.Length != 0)
-            {
-                BinaryFormatter bf = new BinaryFormatter();
-                if (!Directory.Exists(Application.persistentDataPath + "/temp")) Directory.CreateDirectory(Application.persistentDataPath + "/temp");
-                FileStream file = File.Create(path);
-                bf.Serialize(file, GenerateSaveData());
-                file.Close();
-            }
         }
 
         public MapSaveData LoadFile(string path)
@@ -301,7 +248,6 @@ namespace MetroTileEditor
             if (!Application.isPlaying)
             {
                 Debug.Log("Destroyed");
-                SaveTempData(Application.persistentDataPath + "/temp/" + name + "_temp.map");
             }
         }
     }

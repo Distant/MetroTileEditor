@@ -6,7 +6,7 @@ namespace MetroTileEditor.Generation
 {
     public static class MeshGenerator
     {
-        public static void GenerateMesh(BlockData[,,] blockDataArray, string mapName)
+        public static void GenerateMesh(BlockDataArray blockDataArray, string mapName)
         {
             GameObject mapParent = FindSceneObject(mapName + "_meshTemp");
             Block[] cols = mapParent.GetComponentsInChildren<Block>();
@@ -15,13 +15,13 @@ namespace MetroTileEditor.Generation
             GameObject finalMesh = new GameObject();
             List<CombineInstance> combines = new List<CombineInstance>();
 
-            for (int i = 0; i < blockDataArray.GetLength(0); i++)
+            for (int i = 0; i < blockDataArray.Width; i++)
             {
-                for (int j = 0; j < blockDataArray.GetLength(1); j++)
+                for (int j = 0; j < blockDataArray.Height; j++)
                 {
-                    for (int k = 0; k < blockDataArray.GetLength(2); k++)
+                    for (int k = 0; k < blockDataArray.Depth; k++)
                     {
-                        BlockData curBlockData = blockDataArray[i, j, k];
+                        BlockData curBlockData = blockDataArray.GetBlock(i,j, k);
                         if (curBlockData != null && curBlockData.placed)
                         {
                             GameObject g = GenerateCube(new Vector3(i + 0.5f, j + 0.5f, k - 0.5f), curBlockData.blockType, mapParent.transform);
@@ -134,7 +134,7 @@ namespace MetroTileEditor.Generation
             return newCube;
         }
 
-        public static void GenerateColliders(BlockData[,,] blockDataArray, string mapName)
+        public static void GenerateColliders(BlockDataArray blockDataArray, string mapName)
         {
             GameObject colliderParent = FindSceneObject(mapName + "_colliders");
             Collider2D[] cols = colliderParent.GetComponentsInChildren<Collider2D>();
@@ -143,18 +143,19 @@ namespace MetroTileEditor.Generation
             Debug.Log("Colliders Reset");
 
             int k = 3;
-            for (int i = 0; i < blockDataArray.GetLength(0); i++)
+            for (int i = 0; i < blockDataArray.Width; i++)
             {
-                for (int j = 0; j < blockDataArray.GetLength(1); j++)
+                for (int j = 0; j < blockDataArray.Height; j++)
                 {
-                    if (blockDataArray[i, j, k] != null && blockDataArray[i, j, k].placed && !blockDataArray[i, j, k].isTriggerOnly)
+                    BlockData curData = blockDataArray.GetBlock(i, j, k);
+                    if (curData != null && curData.placed && !curData.isTriggerOnly)
                     {
                         GameObject g = new GameObject();
                         g.name = "collider";
                         g.transform.position = new Vector3(i + 0.5f, j + 0.5f, k - 0.5f);
                         g.transform.parent = colliderParent.transform;
 
-                        ColliderData data = blockDataArray[i, j, k].colliderData;
+                        ColliderData data = curData.colliderData;
                         Collider2D collider;
                         if (data != null && data.orientations != null && data.orientations.Length > 0)
                         {
@@ -172,10 +173,10 @@ namespace MetroTileEditor.Generation
                             collider = g.AddComponent<BoxCollider2D>();
                         }
 
-                        if (blockDataArray[i, j, k].isTriggerOnly) collider.isTrigger = true;
+                        if (curData.isTriggerOnly) collider.isTrigger = true;
 
                         TileData tileInfo = g.AddComponent<TileData>();
-                        LoadBlockData(tileInfo, blockDataArray[i, j, k]);
+                        LoadBlockData(tileInfo, curData);
                         g.layer = LayerMask.NameToLayer("Solid");
                     }
                 }

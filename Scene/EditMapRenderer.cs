@@ -23,7 +23,7 @@ namespace MetroTileEditor.Renderers
             block.GetComponent<Block>().SetBlockData(data);
         }
 
-        public void DrawBlocks(BlockData[,,] blockDataArray, string mapName)
+        public void DrawBlocks(BlockDataArray blockDataArray, string mapName)
         {
             Block[] blocks = FindSceneObject(mapName + "_data").GetComponentsInChildren<Block>();
             for (int i = 0; i < blocks.Length; i++) GameObject.DestroyImmediate(blocks[i].gameObject);
@@ -32,22 +32,22 @@ namespace MetroTileEditor.Renderers
 
             parent = FindSceneObject(mapName + "_data").transform;
 
-            for (int i = 0; i < blockDataArray.GetLength(0); i++)
+            for (int i = 0; i < blockDataArray.Width; i++)
             {
-                for (int j = 0; j < blockDataArray.GetLength(1); j++)
+                for (int j = 0; j < blockDataArray.Height; j++)
                 {
-                    for (int k = 0; k < blockDataArray.GetLength(2); k++)
+                    for (int k = 0; k < blockDataArray.Depth; k++)
                     {
-                        if (blockDataArray[i, j, k] != null && blockDataArray[i, j, k].placed)
+                        if (blockDataArray.GetBlock(i,j,k) != null && blockDataArray.GetBlock(i,j,k).placed)
                         {
-                            GameObject g = BlockAdded(i, j, k, blockDataArray[i, j, k]);
+                            GameObject g = BlockAdded(i, j, k, blockDataArray.GetBlock(i,j,k));
                         }
                     }
                 }
             }
         }
 
-        public void ReAttachBlocks(BlockData[,,] blockDataArray, Vector3 offset, string mapName)
+        public void ReAttachBlocks(BlockDataArray blockDataArray, Vector3 offset, string mapName)
         {
             Debug.Log("Reattaching blocks");
             parent = FindSceneObject(mapName + "_data").transform;
@@ -57,11 +57,11 @@ namespace MetroTileEditor.Renderers
                 int x = (int)(raw.x - offset.x);
                 int y = (int)(raw.y - offset.y);
                 int z = (int)(raw.z + 1 - offset.z);
-                block.SetBlockData(blockDataArray[x, y, z]);
+                block.SetBlockData(blockDataArray.GetBlock(x, y, z));
             }
         }
 
-        public void RecreateMap(BlockData[,,] blockDataArray, Vector3 offset, string mapName)
+        public void RecreateMap(BlockDataArray blockDataArray, Vector3 offset, string mapName)
         {
             Debug.Log("Recreating blocks");
             parent = FindSceneObject(mapName + "_data").transform;
@@ -71,8 +71,8 @@ namespace MetroTileEditor.Renderers
                 int x = (int)(raw.x - offset.x);
                 int y = (int)(raw.y - offset.y);
                 int z = (int)(raw.z + 1 - offset.z);
-                blockDataArray[x, y, z] = block.data;
-                blockDataArray[x, y, z].placed = true;
+                blockDataArray.SetBlock(x, y, z, block.data);
+                blockDataArray.GetBlock(x, y, z).placed = true;
             }
         }
 

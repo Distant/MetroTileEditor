@@ -9,6 +9,8 @@ namespace MetroTileEditor
         public bool placed;
         public string[] materialIDs;
         public bool breakable;
+        public bool isTriggerOnly;
+        public bool excludeFromMesh;
         [NonSerialized]
         public ColliderData colliderData;
         public BlockData()
@@ -16,6 +18,5 @@ namespace MetroTileEditor
             materialIDs = new string[6];
             colliderData = new ColliderData();
         }
-        
     }
 }

@@ -200,12 +200,12 @@ namespace MetroTileEditor.Editors
 
                 if (GUILayout.Button("Generate Colliders"))
                 {
-                    MeshGenerator.GenerateColliders(currentMapObj.blockDataArray, currentMapObj.mapName);
+                    MeshGenerator.GenerateColliders(currentMapObj.blocks, currentMapObj.mapName);
                 }
 
                 if (GUILayout.Button("Generate Mesh"))
                 {
-                    MeshGenerator.GenerateMesh(currentMapObj.blockDataArray, currentMapObj.mapName);
+                    MeshGenerator.GenerateMesh(currentMapObj.blocks, currentMapObj.mapName);
                 }
 
                 if (GUILayout.Button("Recreate Map"))
@@ -513,8 +513,8 @@ namespace MetroTileEditor.Editors
             var path = EditorUtility.SaveFilePanel(
                         "Save Map Data",
                         Application.persistentDataPath,
-                        "new_map" + ".map",
-                        "map");
+                        "new_map" + ".map2",
+                        "map2");
 
             SaveFile(path);
         }
@@ -525,8 +525,8 @@ namespace MetroTileEditor.Editors
             {
                 BinaryFormatter bf = new BinaryFormatter();
                 FileStream file = File.Create(path);
-                MapSaveData saveData = currentMapObj.GenerateSaveData();
-                bf.Serialize(file, saveData);
+                currentMapObj.blocks.Clean();
+                bf.Serialize(file, currentMapObj.blocks);
                 file.Close();
                 loadedMapPath = path;
             }
@@ -537,18 +537,19 @@ namespace MetroTileEditor.Editors
             var path = EditorUtility.OpenFilePanel(
                         "Select Map",
                         Application.persistentDataPath,
-                        "map");
+                        "map2");
 
             if (File.Exists(path))
             {
                 BinaryFormatter bf = new BinaryFormatter();
                 FileStream file = File.Open(path, FileMode.Open);
-                MapSaveData saveData = (MapSaveData)bf.Deserialize(file);
+                BlockDataArray saveData = (BlockDataArray)bf.Deserialize(file);
                 file.Close();
 
-                loadedMapPath = path;
+                loadedMapPath = path; 
                 try
                 {
+                    saveData.Clean();
                     currentMapObj.Load(saveData, true);
                 }
                 catch (Exception e)

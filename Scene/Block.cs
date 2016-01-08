@@ -1,5 +1,4 @@
-﻿using MetroTileEditor.Renderers;
-using UnityEngine;
+﻿using UnityEngine;
 namespace MetroTileEditor
 {
     public class Block : MonoBehaviour

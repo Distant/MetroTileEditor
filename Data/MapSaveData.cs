@@ -11,28 +11,24 @@ namespace MetroTileEditor
         public int x, y, z;
         public int selectedLayer;
 
-        public MapSaveData(BlockData[,,] blockDataArray, int layer)
+        public MapSaveData(BlockDataArray blockDataArray, int layer)
         {
-            x = blockDataArray.GetLength(0);
-            y = blockDataArray.GetLength(1);
-            z = blockDataArray.GetLength(2);
-            blockData1D = ArrayUtils.Array3DTo1D(blockDataArray, x, y, z);
+            blockData1D = blockDataArray.Data;
             selectedLayer = layer;
         }
 
-        public MapSaveData(BlockData[,,] blockDataArray, int x, int y, int z, int layer)
+        public MapSaveData(BlockDataArray blockDataArray, int x, int y, int z, int layer)
         {
-            blockData1D = ArrayUtils.Array3DTo1D(blockDataArray, x, y, z);
-
+            blockData1D = blockDataArray.Data;
             this.x = x;
             this.y = y;
             this.z = z;
             selectedLayer = layer;
         }
 
-        public MapSaveData(BlockData[,,] blockDataArray, int x, int y, int z)
+        public MapSaveData(BlockDataArray blockDataArray, int x, int y, int z)
         {
-            blockData1D = ArrayUtils.Array3DTo1D(blockDataArray, x, y, z);
+            blockData1D = blockDataArray.Data;
 
             this.x = x;
             this.y = y;
@@ -42,27 +38,14 @@ namespace MetroTileEditor
 
         public static MapSaveData Empty()
         {
-            return new MapSaveData(new BlockData[1, 1, 1], 0);
+            return new MapSaveData(new BlockDataArray(1,1,1), 0);
         }
 
-        public BlockData[,,] Get3DData()
+        public BlockDataArray Get3DData()
         {
-            int count = 0;
-            for (int i = 0; i < blockData1D.Length; i++)
-            {
-                if (blockData1D[i] != null)
-                {
-                    if (blockData1D[i].placed)
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        blockData1D[i] = null;
-                    }
-                }   
-            }
-            return ArrayUtils.Array1DTo3D(blockData1D, x, y, z);
+            BlockDataArray blockData = new BlockDataArray(x, y, z);
+            blockData.Data = blockData1D;
+            return blockData;
         }
     }
 }
