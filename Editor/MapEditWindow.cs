@@ -19,6 +19,7 @@ namespace MetroTileEditor.Editors
             PlaceBlocks,
             RotateBlocks,
             PaintBlocks,
+            RotateTexture,
             DeleteBlocks,
             ColourPick,
             SelectBlock
@@ -32,7 +33,8 @@ namespace MetroTileEditor.Editors
         {KeyCode.U, EditMode.DeleteBlocks },
         {KeyCode.G, EditMode.PlaceBlocks },
         {KeyCode.M, EditMode.SelectBlock },
-        {KeyCode.B, EditMode.RotateBlocks }
+        {KeyCode.B, EditMode.RotateBlocks },
+        {KeyCode.T, EditMode.RotateTexture }
     };
 
         private MapObject currentMapObj;
@@ -423,7 +425,8 @@ namespace MetroTileEditor.Editors
                                 {
                                     switch (editMode)
                                     {
-                                        case EditMode.PaintBlocks: block.SetMaterial(hit, selectedMaterialId); currentMapObj.UpdateGrid(block.gameObject); break;
+                                        case EditMode.PaintBlocks: block.SetMaterial(hit, selectedMaterialId); currentMapObj.UpdateBlock(block.gameObject); break;
+                                        case EditMode.RotateTexture: block.RotateTexture(hit); break;
                                         case EditMode.PlaceBlocks: PlaceBlock(hitDirection, mouseOverObj); break;
                                         case EditMode.DeleteBlocks: currentMapObj.DeleteBlock(mouseOverObj); break;
                                         case EditMode.ColourPick: selectedMaterialId = GetMaterialId(hit, mouseOverObj); editMode = EditMode.PaintBlocks; break;
@@ -479,6 +482,7 @@ namespace MetroTileEditor.Editors
             int z = (int)(newRaw.z + 1);
             lastPlaced = currentMapObj.AddBlock(x, y, z, selectedBlockType);
         }
+
 
         private string GetMaterialId(RaycastHit hit, GameObject g)
         {

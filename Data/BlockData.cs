@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace MetroTileEditor
 {
@@ -7,16 +8,21 @@ namespace MetroTileEditor
     {
         public string blockType = "basic_cube";
         public bool placed;
-        public string[] materialIDs;
+        public string[] materialIDs; 
         public bool breakable;
         public bool isTriggerOnly;
         public bool excludeFromMesh;
+
+        [Range(0, 3)]
+        [SerializeField]
+        public int[] rotations;
         [NonSerialized]
         public ColliderData colliderData;
         public BlockData()
         {
             materialIDs = new string[6];
             colliderData = new ColliderData();
+            rotations = new int[6];
         }
     }
 }
