@@ -144,7 +144,7 @@ namespace MetroTileEditor
             return null;
         }
 
-        public void UpdateGrid(GameObject g)
+        public void UpdateBlock(GameObject g)
         {
             Vector3 raw = g.transform.position;
             int x = (int)(raw.x - transform.position.x);
