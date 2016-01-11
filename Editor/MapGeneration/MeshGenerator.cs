@@ -15,13 +15,18 @@ namespace MetroTileEditor.Generation
             GameObject finalMesh = new GameObject();
             List<CombineInstance> combines = new List<CombineInstance>();
 
+            TextureManager.TexturePacker texPacker = new TextureManager.TexturePacker();
+            int texsize = 32;
+            int mintex = 8;
+            texPacker.Start(texsize, mintex);
+
             for (int i = 0; i < blockDataArray.Width; i++)
             {
                 for (int j = 0; j < blockDataArray.Height; j++)
                 {
                     for (int k = 0; k < blockDataArray.Depth; k++)
                     {
-                        BlockData curBlockData = blockDataArray.GetBlock(i,j, k);
+                        BlockData curBlockData = blockDataArray.GetBlock(i, j, k);
                         if (curBlockData != null && curBlockData.placed)
                         {
                             GameObject g = GenerateCube(new Vector3(i + 0.5f, j + 0.5f, k - 0.5f), curBlockData.blockType, mapParent.transform);
@@ -37,9 +42,7 @@ namespace MetroTileEditor.Generation
                                 string s = curBlockData.materialIDs[x];
                                 if (!string.IsNullOrEmpty(s))
                                 {
-                                    string[] split = s.Split('_');
-                                    float uvx = int.Parse(split[2]);
-                                    float uvy = int.Parse(split[3]);
+                                    Rect pos = texPacker.AddSprite(s);
 
                                     triangles = gMesh.GetTriangles(x);
 
@@ -52,13 +55,16 @@ namespace MetroTileEditor.Generation
                                     foreach (int vertIndex in trianglesIndexSet)
                                     {
                                         var newUV = newUVs[vertIndex];
-                                        newUV.x /= 8;
-                                        newUV.y /= 8;
-                                        newUV.x += (uvx / 8);
-                                        newUV.y += (uvy / 8);
+                                        newUV.x /= texsize;
+                                        newUV.x *= pos.width;
+                                        newUV.y /= texsize;
+                                        newUV.y *= pos.height;
+
+                                        newUV.x += (pos.x / texsize);
+                                        newUV.y += (pos.y / texsize);
+
                                         newUVs[vertIndex] = newUV;
                                     }
-
                                 }
                             }
 
@@ -116,7 +122,7 @@ namespace MetroTileEditor.Generation
             newMesh.CombineMeshes(combines.ToArray(), true);
             Unwrapping.GenerateSecondaryUVSet(newMesh);
             finalMesh.AddComponent<MeshFilter>().mesh = newMesh;
-            finalMesh.AddComponent<MeshRenderer>();
+            finalMesh.AddComponent<MeshRenderer>().sharedMaterial = texPacker.Finish();
             finalMesh.gameObject.SetActive(true);
             finalMesh.isStatic = true;
             finalMesh.name = mapName + "_mesh";
