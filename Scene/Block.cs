@@ -31,7 +31,7 @@ namespace MetroTileEditor
             {
                 if (data.rotations[i] != 0)
                 {
-                    RotateTexture(i);
+                    RotateUVs(i, data.rotations[i]);
                 }
             }
         }
@@ -99,10 +99,10 @@ namespace MetroTileEditor
             data.rotations[subMesh]++;
             if (data.rotations[subMesh] > 3) data.rotations[subMesh] = 0;
 
-            RotateTexture(subMesh);
+            RotateUVs(subMesh, data.rotations[subMesh]);
         }
 
-        public void RotateTexture(int subMesh)
+        public void RotateUVs(int subMesh, int rotation)
         {
             MeshFilter meshFilter = GetComponent<MeshFilter>();
             Mesh mesh = meshFilter.mesh;
@@ -123,8 +123,8 @@ namespace MetroTileEditor
                 Vector2 offset = new Vector2(0.5f, 0.5f);
                 var newUV = initialUVs[vertIndex] - offset;
 
-                float sin = Mathf.Sin(data.rotations[subMesh] * 90 * Mathf.Deg2Rad);
-                float cos = Mathf.Cos(data.rotations[subMesh] * 90 * Mathf.Deg2Rad);
+                float sin = Mathf.Sin(rotation * 90 * Mathf.Deg2Rad);
+                float cos = Mathf.Cos(rotation * 90 * Mathf.Deg2Rad);
 
                 float tx = newUV.x;
                 float ty = newUV.y;
