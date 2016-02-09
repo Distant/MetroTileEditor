@@ -23,7 +23,7 @@ namespace MetroTileEditor.Renderers
             block.GetComponent<Block>().SetBlockData(data);
         }
 
-        public void DrawBlocks(BlockDataArray blockDataArray, string mapName)
+        public void DrawBlocks(BlockDataArray blockDataArray, Vector3 offset, string mapName)
         {
             Block[] blocks = FindSceneObject(mapName + "_data").GetComponentsInChildren<Block>();
             for (int i = 0; i < blocks.Length; i++) GameObject.DestroyImmediate(blocks[i].gameObject);
@@ -31,6 +31,9 @@ namespace MetroTileEditor.Renderers
             Debug.Log("Editor map reset");
 
             parent = FindSceneObject(mapName + "_data").transform;
+            parent.transform.position = offset;
+            SelectionBase selBase = parent.gameObject.GetComponent<SelectionBase>();
+            if (selBase == null) parent.gameObject.AddComponent<SelectionBase>();
 
             for (int i = 0; i < blockDataArray.Width; i++)
             {
@@ -38,9 +41,9 @@ namespace MetroTileEditor.Renderers
                 {
                     for (int k = 0; k < blockDataArray.Depth; k++)
                     {
-                        if (blockDataArray.GetBlock(i,j,k) != null && blockDataArray.GetBlock(i,j,k).placed)
+                        if (blockDataArray.GetBlockData(i,j,k) != null && blockDataArray.GetBlockData(i,j,k).placed)
                         {
-                            GameObject g = BlockAdded(i, j, k, blockDataArray.GetBlock(i,j,k));
+                            BlockAdded(i, j, k, blockDataArray.GetBlockData(i,j,k));
                         }
                     }
                 }
@@ -57,7 +60,7 @@ namespace MetroTileEditor.Renderers
                 int x = (int)(raw.x - offset.x);
                 int y = (int)(raw.y - offset.y);
                 int z = (int)(raw.z + 1 - offset.z);
-                block.SetBlockData(blockDataArray.GetBlock(x, y, z));
+                block.SetBlockData(blockDataArray.GetBlockData(x, y, z));
             }
         }
 
@@ -72,7 +75,7 @@ namespace MetroTileEditor.Renderers
                 int y = (int)(raw.y - offset.y);
                 int z = (int)(raw.z + 1 - offset.z);
                 blockDataArray.SetBlock(x, y, z, block.data);
-                blockDataArray.GetBlock(x, y, z).placed = true;
+                blockDataArray.GetBlockData(x, y, z).placed = true;
             }
         }
 
