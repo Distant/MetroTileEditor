@@ -56,6 +56,57 @@ namespace MetroTileEditor
                 }
             }
             Debug.Log(p);
+        public Vector3 TrimArray()
+        {
+            int xmin = width, xmax = 0, ymin = height, ymax = 0, zmin = depth, zmax = 0;
+
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    for (int k = 0; k < depth; k++)
+                    {
+                        if (dataArray[k + j * depth + i * depth * height] != null && dataArray[k + j * depth + i * depth * height].placed)
+                        {
+                            if (i < xmin) xmin = i;
+                            if (i > xmax) xmax = i;
+                            if (j < ymin) ymin = j;
+                            if (j > ymax) ymax = j;
+                            if (k < zmin) zmin = k;
+                            if (k > zmax) zmax = k;
+                        }
+                    }
+                }
+            }
+
+            int nWidth = (xmax - xmin + 1);
+            int nHeight = (ymax - ymin + 1);
+            int nDepth = (zmax - zmin + 1);
+            BlockData[] resized = new BlockData[ nWidth * nHeight * nDepth];
+
+            BlockData curData;
+
+            for (int i = 0; i < nWidth; i++)
+            {
+                for (int j = 0; j < nHeight; j++)
+                {
+                    for (int k = 0; k < nDepth; k++)
+                    {
+                        curData = dataArray[(k + zmin) + (j + ymin) * depth + (i + xmin) * depth * height];
+                        if ( curData != null && curData.placed)
+                        {
+                            resized[k + j * nDepth + i * nDepth * nHeight] = dataArray[(k + zmin) + (j + ymin) * depth + (i + xmin) * depth * height];
+                        }
+                    }
+                }
+            }
+
+            width = nWidth;
+            height = nHeight;
+            depth = nDepth;
+            dataArray = resized;
+
+            return new Vector3(xmin, ymin, zmin);
         }
     }
 }
