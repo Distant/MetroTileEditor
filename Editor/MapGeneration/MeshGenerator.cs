@@ -33,7 +33,7 @@ namespace MetroTileEditor.Generation
                             g.GetComponent<Block>().SetBlockData(curBlockData);
 
                             MeshFilter gMeshFilter = g.GetComponent<MeshFilter>();
-                            Mesh gMesh = gMeshFilter.mesh;
+                            Mesh gMesh = Mesh.Instantiate(gMeshFilter.sharedMesh);
 
                             List<Vector2> newUVs = new List<Vector2>(gMesh.uv);
                             int[] triangles;
