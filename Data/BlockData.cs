@@ -17,16 +17,20 @@ namespace MetroTileEditor
 
         [NonSerialized]
         public ColliderData colliderData;
+
         public BlockData()
         {
-            materialIDs = new string[6];
-            colliderData = new ColliderData();
-            rotations = new int[6];
+            Init();
         }
 
         public BlockData(string blockType)
         {
             this.blockType = blockType;
+            Init();
+        }
+
+       private void Init()
+        {
             materialIDs = new string[6];
             colliderData = new ColliderData();
             rotations = new int[6];
