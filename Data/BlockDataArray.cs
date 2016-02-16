@@ -6,10 +6,11 @@ namespace MetroTileEditor
     [Serializable]
     public class BlockDataArray
     {
+        
         [SerializeField]
         private BlockData[] dataArray;
         public BlockData[] Data { get { return dataArray; } set { dataArray = value; Clean(); } }
-
+        
         [SerializeField]
         private int width;
         public int Width { get { return width; } }
@@ -32,25 +33,37 @@ namespace MetroTileEditor
 
         public void SetBlock(int x, int y, int z, BlockData data)
         {
-            dataArray[z + y * depth + x * depth * height] = data;
+            if (ValidIndex(x, y, z))
+            {
+                dataArray[z + y * depth + x * depth * height] = data;
+            }
         }
 
         public void DeleteBlock(int x, int y, int z)
         {
-            dataArray[z + y * depth + x * depth * height] = null;
+            if (ValidIndex(x, y, z))
+            {
+                dataArray[z + y * depth + x * depth * height] = null;
+            }
         }
 
-        public BlockData GetBlock(int x, int y, int z)
+        public BlockData GetBlockData(int x, int y, int z)
         {
-            return dataArray[z + y * depth + x * depth * height];
+            if (ValidIndex(x, y, z))
+            {
+                return dataArray[z + y * depth + x * depth * height];
+            }
+            else throw new IndexOutOfRangeException("No such index in array");
         }
 
+        // Remove empty objects created by the serialization process
         public void Clean()
         {
             int p = 0;
             for (int i = 0; i < dataArray.Length; i++)
             {
-                if (dataArray[i] != null && !dataArray[i].placed) {
+                if (dataArray[i] != null && !dataArray[i].placed)
+                {
                     p++;
                     dataArray[i] = null;
                 }
@@ -108,5 +121,11 @@ namespace MetroTileEditor
 
             return new Vector3(xmin, ymin, zmin);
         }
+
+        private bool ValidIndex(int x, int y, int z)
+        {
+            return (x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
+        }
+    
     }
 }
