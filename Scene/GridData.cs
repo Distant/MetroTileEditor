@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace MetroTileEditor.Renderers
 {
@@ -6,9 +7,10 @@ namespace MetroTileEditor.Renderers
     public class GridData
     {
         public bool gridEnabled;
-        public int gridX;
-        public int gridY;
-        public int layers;
+        public int sizeX;
+        public int sizeY;
+        public int sizeZ;
+        [SerializeField]
         private int selectedLayer;
         public int SelectedLayer
         {
@@ -17,16 +19,16 @@ namespace MetroTileEditor.Renderers
             {
                 selectedLayer = value;
                 if (selectedLayer < 0) selectedLayer = 0;
-                else if (selectedLayer > layers - 1) selectedLayer = layers - 1;
+                else if (selectedLayer > sizeZ - 1) selectedLayer = sizeZ - 1;
             }
         }
 
         public GridData(bool gridEnabled, int gridX, int gridY, int layers, int selectedLayer)
         {
             this.gridEnabled = gridEnabled;
-            this.gridX = gridX;
-            this.gridY = gridY;
-            this.layers = layers;
+            this.sizeX = gridX;
+            this.sizeY = gridY;
+            this.sizeZ = layers;
             this.selectedLayer = selectedLayer;
         }
     }
