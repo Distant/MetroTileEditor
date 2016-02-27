@@ -6,14 +6,14 @@ namespace MetroTileEditor.Renderers
     {
         private Transform parent;
 
-        public GameObject BlockAdded(int x, int y, int z, BlockData data)
+        public GameObject BlockAdded(Index index, BlockData data)
         {
-            var newBlock = GenerateCube(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f), data.blockType, parent);
+            var newBlock = GenerateCube(new Vector3(index.x + 0.5f, index.y + 0.5f, index.z - 0.5f), data.blockType, parent);
             newBlock.GetComponent<Block>().SetBlockData(data);
             return newBlock;
         }
 
-        public void BlockDeleted(int x, int y, int z, GameObject block)
+        public void BlockDeleted(Index index, GameObject block)
         {
             GameObject.DestroyImmediate(block);
         }
@@ -41,9 +41,10 @@ namespace MetroTileEditor.Renderers
                 {
                     for (int k = 0; k < blockDataArray.Depth; k++)
                     {
-                        if (blockDataArray.GetBlockData(i,j,k) != null && blockDataArray.GetBlockData(i,j,k).placed)
+                        BlockData block = blockDataArray.GetBlockData(i, j, k);
+                        if (block != null && block.placed)
                         {
-                            BlockAdded(i, j, k, blockDataArray.GetBlockData(i,j,k));
+                            BlockAdded(new Index(i, j, k), block);
                         }
                     }
                 }
