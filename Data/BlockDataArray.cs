@@ -25,6 +25,10 @@ namespace MetroTileEditor
 
         public BlockDataArray(int width, int height, int depth)
         {
+            if (width <= 0) width = 1;
+            if (height <= 0) height = 1;
+            if (depth <= 0) depth = 1;
+
             dataArray = new BlockData[width * height * depth];
             this.width = width;
             this.height = height;
@@ -72,6 +76,7 @@ namespace MetroTileEditor
         public Vector3 TrimArray()
         {
             int xmin = width, xmax = 0, ymin = height, ymax = 0, zmin = depth, zmax = 0;
+            bool blockFound = false;
 
             for (int i = 0; i < width; i++)
             {
@@ -81,6 +86,7 @@ namespace MetroTileEditor
                     {
                         if (dataArray[k + j * depth + i * depth * height] != null && dataArray[k + j * depth + i * depth * height].placed)
                         {
+                            blockFound = true;
                             if (i < xmin) xmin = i;
                             if (i > xmax) xmax = i;
                             if (j < ymin) ymin = j;
@@ -92,10 +98,19 @@ namespace MetroTileEditor
                 }
             }
 
+            if (!blockFound)
+            {
+                width = 1;
+                height = 1;
+                depth = 1;
+                dataArray = new BlockData[1];
+                return Vector3.zero;
+            }
+
             int nWidth = (xmax - xmin + 1);
             int nHeight = (ymax - ymin + 1);
             int nDepth = (zmax - zmin + 1);
-            BlockData[] resized = new BlockData[ nWidth * nHeight * nDepth];
+            BlockData[] resized = new BlockData[nWidth * nHeight * nDepth];
 
             BlockData curData;
 
@@ -106,7 +121,7 @@ namespace MetroTileEditor
                     for (int k = 0; k < nDepth; k++)
                     {
                         curData = dataArray[(k + zmin) + (j + ymin) * depth + (i + xmin) * depth * height];
-                        if ( curData != null && curData.placed)
+                        if (curData != null && curData.placed)
                         {
                             resized[k + j * nDepth + i * nDepth * nHeight] = dataArray[(k + zmin) + (j + ymin) * depth + (i + xmin) * depth * height];
                         }
