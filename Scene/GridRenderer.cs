@@ -5,11 +5,11 @@ namespace MetroTileEditor.Renderers
     public class GridRenderer : MonoBehaviour
     {
         private Material lineMaterial;
-        private GridData m;
+        private GridData model;
         private BoxCollider col;
         public bool HasModel()
         {
-            return m != null;
+            return model != null;
         }
 
         void Awake()
@@ -20,15 +20,15 @@ namespace MetroTileEditor.Renderers
         public void SetDataModel(GridData model)
         {
             col = GetComponent<BoxCollider>();
-            m = model;
+            this.model = model;
             DataModelChanged();
         }
 
         public void DataModelChanged()
         {
-            col.size = new Vector3(m.gridX, 0, m.gridY);
-            col.center = new Vector3(m.gridX / 2, -1 * m.SelectedLayer, m.gridY / 2);
-            if (!m.gridEnabled) col.enabled = false;
+            col.size = new Vector3(model.sizeX, 0, model.sizeY);
+            col.center = new Vector3(((float)model.sizeX) / 2, -1 * ((float)model.SelectedLayer), ((float)model.sizeY) / 2);
+            if (!model.gridEnabled) col.enabled = false;
             else col.enabled = true;
         }
 
@@ -50,7 +50,7 @@ namespace MetroTileEditor.Renderers
         // Will be called after all regular rendering is done
         void OnDrawGizmos()
         {
-            if (m != null && m.gridEnabled)
+            if (model != null && model.gridEnabled)
             {
                 CreateLineMaterial();
                 // Apply the line material
@@ -59,16 +59,16 @@ namespace MetroTileEditor.Renderers
                 // Draw lines
                 GL.Begin(GL.LINES);
                 GL.Color(Color.grey);
-                for (int i = 0; i < m.gridX + 1; ++i)
+                for (int i = 0; i < model.sizeX + 1; ++i)
                 {
-                    GL.Vertex3(i + transform.position.x, m.gridY + transform.position.y, m.SelectedLayer);
-                    GL.Vertex3(i + transform.position.x, transform.position.y, m.SelectedLayer);
+                    GL.Vertex3(i + transform.position.x, model.sizeY + transform.position.y, model.SelectedLayer);
+                    GL.Vertex3(i + transform.position.x, transform.position.y, model.SelectedLayer);
                 }
 
-                for (int i = 0; i < m.gridY + 1; ++i)
+                for (int i = 0; i < model.sizeY + 1; ++i)
                 {
-                    GL.Vertex3(m.gridX + transform.position.x, i + transform.position.y, m.SelectedLayer);
-                    GL.Vertex3(0 + transform.position.x, i + transform.position.y, m.SelectedLayer);
+                    GL.Vertex3(model.sizeX + transform.position.x, i + transform.position.y, model.SelectedLayer);
+                    GL.Vertex3(0 + transform.position.x, i + transform.position.y, model.SelectedLayer);
                 }
 
                 GL.End();
