@@ -142,5 +142,23 @@ namespace MetroTileEditor
             return (x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth);
         }
     
+        public int GetCount()
+        {
+            int count = 0;
+            for (int i = 0; i < Width; i++)
+            {
+                for (int j = 0; j < Height; j++)
+                {
+                    for (int k = 0; k < Depth; k++)
+                    {
+                        if (GetBlockData(i,j,k) != null)
+                        {
+                            count++;
+                        }
+                    }
+                }
+            }
+            return count;
+        }
     }
 }
