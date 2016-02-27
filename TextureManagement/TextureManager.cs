@@ -102,6 +102,8 @@ namespace MetroTileEditor
                         mat.mainTexture = tex;
                         mat.shaderKeywords = new string[2] { "_NORMALMAP", "_EMISSIONMAP" };
                         mat.name = sheet.name + "_" + i + "_" + j;
+                        mat.SetFloat("_Mode", 1);
+                        mat.EnableKeyword("_ALPHATEST_ON");
                         materials.Add(mat.name, mat);
                     }
                 }
@@ -181,9 +183,8 @@ namespace MetroTileEditor
                             !tiles[current.x + 1, current.y + 1])
                         {
                             positions.Add(m, new Rect(current.x, current.y, 2, 2));
-                            Debug.Log(current.x + " " + current.y);
                             tiles[current.x, current.y] = true;
-                            tiles[current.x + 1, current.y] = true;
+                            tiles[current.x + 1, current.y] = true; 
                             tiles[current.x, current.y + 1] = true;
                             tiles[current.x + 1, current.y + 1] = true;
 
@@ -212,7 +213,6 @@ namespace MetroTileEditor
                             !tiles[current.x + 2, current.y + 1] &&
                             !tiles[current.x + 2, current.y + 2])
                         {
-                            Debug.Log(current.x + " " + current.y);
                             positions.Add(m, new Rect(current.x, current.y, 3, 3));
                             tiles[current.x, current.y] = true;
                             tiles[current.x + 1, current.y] = true;
@@ -231,8 +231,6 @@ namespace MetroTileEditor
                         else { current = FindNextFreeIndex(current); }
                     }
                 }
-
-                Debug.Log("oops");
                 return new Rect(0, 0, 0, 0);
             }
 
@@ -278,7 +276,9 @@ namespace MetroTileEditor
                 final.Apply();
                 Material mat = new Material(DefaultMat);
                 mat.mainTexture = final;
-                mat.name = "idk";
+                mat.name = "tex_atlas";
+                mat.SetFloat("_Mode", 1);
+                mat.EnableKeyword("_ALPHATEST_ON");
                 return mat;
             }
         }
