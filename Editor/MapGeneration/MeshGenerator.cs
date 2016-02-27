@@ -26,7 +26,7 @@ namespace MetroTileEditor.Generation
                 {
                     for (int k = 0; k < blockDataArray.Depth; k++)
                     {
-                        BlockData curBlockData = blockDataArray.GetBlock(i, j, k);
+                        BlockData curBlockData = blockDataArray.GetBlockData(i, j, k);
                         if (curBlockData != null && curBlockData.placed)
                         {
                             GameObject g = GenerateCube(new Vector3(i + 0.5f, j + 0.5f, k - 0.5f), curBlockData.blockType, mapParent.transform);
@@ -121,7 +121,8 @@ namespace MetroTileEditor.Generation
             Mesh newMesh = new Mesh();
             newMesh.CombineMeshes(combines.ToArray(), true);
             Unwrapping.GenerateSecondaryUVSet(newMesh);
-            finalMesh.AddComponent<MeshFilter>().mesh = newMesh;
+            finalMesh.AddComponent<MeshFilter>().sharedMesh = newMesh;
+            finalMesh.AddComponent<MeshCollider>().sharedMesh = newMesh;
             finalMesh.AddComponent<MeshRenderer>().sharedMaterial = texPacker.Finish();
             finalMesh.gameObject.SetActive(true);
             finalMesh.isStatic = true;
@@ -153,7 +154,7 @@ namespace MetroTileEditor.Generation
             {
                 for (int j = 0; j < blockDataArray.Height; j++)
                 {
-                    BlockData curData = blockDataArray.GetBlock(i, j, k);
+                    BlockData curData = blockDataArray.GetBlockData(i, j, k);
                     if (curData != null && curData.placed && !curData.isTriggerOnly)
                     {
                         GameObject g = new GameObject();
