@@ -11,6 +11,8 @@ ModelImporter:
     3300000: //RootNode
     4300000: Cylinder001
     4300002: Object003
+    4300004: Cylinder002
+    4300006: Object006
     6400000: //RootNode
   materials:
     importMaterials: 0
@@ -52,9 +54,9 @@ ModelImporter:
     secondaryUVPackMargin: 4
     useFileScale: 1
   tangentSpace:
-    normalSmoothAngle: 89
-    normalImportMode: 1
-    tangentImportMode: 3
+    normalSmoothAngle: 85
+    normalImportMode: 0
+    tangentImportMode: 0
   importAnimation: 1
   copyAvatar: 0
   humanDescription:

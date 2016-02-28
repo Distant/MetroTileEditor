@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: a2f4e1d3d1d1db44d91bf516352f6574
-timeCreated: 1449670815
+guid: cbdf4c100a7c6f94d806b20aeef9a3b8
+timeCreated: 1454694523
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: Box004
+    4300000: Box733
     6400000: //RootNode
   materials:
     importMaterials: 0
@@ -51,9 +51,9 @@ ModelImporter:
     secondaryUVPackMargin: 4
     useFileScale: 1
   tangentSpace:
-    normalSmoothAngle: 60
-    normalImportMode: 0
-    tangentImportMode: 0
+    normalSmoothAngle: 149
+    normalImportMode: 1
+    tangentImportMode: 3
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
