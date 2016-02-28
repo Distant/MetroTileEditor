@@ -56,7 +56,6 @@ namespace MetroTileEditor.Editors
 
         private Vector2 gridPoint;
         private GameObject mouseOverObj;
-        private static BlockData lastPlaced;
         private Vector2 mousePoint;
         private FaceDirection hitDirection = FaceDirection.None;
 
@@ -201,12 +200,12 @@ namespace MetroTileEditor.Editors
 
                 if (GUILayout.Button("Generate Colliders"))
                 {
-                    MeshGenerator.GenerateColliders(currentMapObj.blocks, currentMapObj.mapName);
+                    MeshGenerator.GenerateColliders(currentMapObj.blockArray, currentMapObj.mapName);
                 }
 
                 if (GUILayout.Button("Generate Mesh"))
                 {
-                    MeshGenerator.GenerateMesh(currentMapObj.blocks, currentMapObj.mapName);
+                    MeshGenerator.GenerateMesh(currentMapObj.blockArray, currentMapObj.mapName);
                 }
 
                 if (GUILayout.Button("Recreate Map"))
@@ -476,10 +475,7 @@ namespace MetroTileEditor.Editors
         private void PlaceBlock(FaceDirection direction, GameObject g)
         {
             Vector3 newRaw = g.transform.position + SceneUtils.GetOffset(direction) * 2;
-            int x = (int)newRaw.x;
-            int y = (int)newRaw.y;
-            int z = (int)(newRaw.z + 1);
-            lastPlaced = currentMapObj.AddBlock(x, y, z, selectedBlockType);
+            currentMapObj.AddBlock(new Vector3(newRaw.x, newRaw.y, (newRaw.z + 1)), selectedBlockType);
         }
 
 
@@ -528,8 +524,8 @@ namespace MetroTileEditor.Editors
             {
                 BinaryFormatter bf = new BinaryFormatter();
                 FileStream file = File.Create(path);
-                currentMapObj.blocks.Clean();
-                bf.Serialize(file, currentMapObj.blocks);
+                currentMapObj.blockArray.Clean();
+                bf.Serialize(file, currentMapObj.blockArray);
                 file.Close();
                 loadedMapPath = path;
             }
@@ -549,7 +545,7 @@ namespace MetroTileEditor.Editors
                 BlockDataArray saveData = (BlockDataArray)bf.Deserialize(file);
                 file.Close();
 
-                loadedMapPath = path; 
+                loadedMapPath = path;
                 try
                 {
                     saveData.Clean();
