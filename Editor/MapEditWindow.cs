@@ -280,7 +280,10 @@ namespace MetroTileEditor.Editors
                 foreach (string id in TextureManager.Materials.Keys)
                 {
                     GUIContent c = new GUIContent();
-                    c.image = TextureManager.Materials[id].mainTexture;
+                    if (TextureManager.Previews.ContainsKey(id))
+                    {
+                        c.image = TextureManager.Previews[id];
+                    }
                     if (GUILayout.Button(c, style, GUILayout.Width(25), GUILayout.Height(25))) { selectedMaterialId = id; editMode = EditMode.PaintBlocks; }
                     index++;
                     if (index % 11 == 0) { GUILayout.EndHorizontal(); GUILayout.BeginHorizontal(); }
@@ -445,14 +448,6 @@ namespace MetroTileEditor.Editors
                                         case EditMode.ColourPick: selectedMaterialId = GetMaterialId(hit, mouseOverObj); editMode = EditMode.PaintBlocks; break;
                                         case EditMode.SelectBlock: SelectBlock(block); break;
                                     }
-                                }
-                            }
-
-                            else if (mouseOverObj == currentMapObj.GridRenderer.gameObject && currentMapObj.GridEnabled)
-                            {
-                                if (editMode == EditMode.PlaceBlocks && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag))
-                                {
-                                    lastPlaced = currentMapObj.AddBlock(hit.point.x, hit.point.y, currentMapObj.SelectedLayer, selectedBlockType);
                                 }
                             }
                         }
