@@ -295,11 +295,13 @@ namespace MetroTileEditor.Editors
                 // block stuff
                 GUILayout.Label("Selected Block: " + selectedBlockType);
                 GUILayout.BeginHorizontal();
+                int i = 0;
                 foreach (GameObject g in PrefabManager.blockPrefabs)
                 {
                     GUIContent c = new GUIContent();
                     c.image = PrefabManager.blockPreviews[i];
                     if (GUILayout.Button(c, style, GUILayout.Width(25), GUILayout.Height(25))) { selectedBlockType = g.name; editMode = EditMode.PlaceBlocks; }
+                    i++;
                 }
                 GUILayout.EndHorizontal();
 
