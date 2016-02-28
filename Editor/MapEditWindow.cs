@@ -45,7 +45,6 @@ namespace MetroTileEditor.Editors
         private string selectedMaterialId;
 
         public EditMode editMode = EditMode.PlaceBlocks;
-        private GameObject[] blockPrefabs;
         private string selectedBlockType = "CubeBlock";
 
         [SerializeField]
@@ -100,7 +99,7 @@ namespace MetroTileEditor.Editors
         {
             EditorApplication.playmodeStateChanged += OnPlayModeChanged;
 
-            blockPrefabs = Resources.LoadAll<GameObject>("Blocks/Prefabs") as GameObject[];
+            PrefabManager.LoadPrefabs();
 
             SceneView.onSceneGUIDelegate -= OnSceneGUI;
             SceneView.onSceneGUIDelegate += OnSceneGUI;
@@ -282,12 +281,12 @@ namespace MetroTileEditor.Editors
                 foreach (GameObject g in blockPrefabs)
                 {
                     GUIContent c = new GUIContent();
-                    c.image = AssetPreview.GetAssetPreview(g);
+                    c.image = PrefabManager.blockPreviews[i];
                     if (GUILayout.Button(c, style, GUILayout.Width(25), GUILayout.Height(25))) { selectedBlockType = g.name; editMode = EditMode.PlaceBlocks; }
                 }
                 GUILayout.EndHorizontal();
 
-                if (GUILayout.Button("Refresh Materials")) TextureManager.FindMaterials();
+                if (GUILayout.Button("Refresh Materials")) { TextureManager.FindMaterials(); PrefabManager.LoadPrefabs(); }
 
                 // saving/loading stuff
 
