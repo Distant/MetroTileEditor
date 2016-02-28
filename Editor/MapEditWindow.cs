@@ -295,7 +295,7 @@ namespace MetroTileEditor.Editors
                 // block stuff
                 GUILayout.Label("Selected Block: " + selectedBlockType);
                 GUILayout.BeginHorizontal();
-                foreach (GameObject g in blockPrefabs)
+                foreach (GameObject g in PrefabManager.blockPrefabs)
                 {
                     GUIContent c = new GUIContent();
                     c.image = PrefabManager.blockPreviews[i];
