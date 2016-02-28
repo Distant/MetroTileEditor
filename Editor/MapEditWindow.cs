@@ -37,7 +37,7 @@ namespace MetroTileEditor.Editors
         {KeyCode.T, EditMode.RotateTexture }
     };
 
-        private MapObject currentMapObj;
+        private Map currentMapObj;
         private bool editing;
         private bool creatingNew;
         private string newName;
@@ -84,14 +84,14 @@ namespace MetroTileEditor.Editors
             if (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying)
             {
                 Debug.Log("Entering Play Mode");
-                foreach (MapObject map in FindObjectsOfType<MapObject>()) map.OnBeforeEnterPlayMode();
+                foreach (Map map in FindObjectsOfType<Map>()) map.OnBeforeEnterPlayMode();
             }
 
             if (!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying)
             {
                 Debug.Log("Exited Play Mode");
                 TextureManager.FindMaterials();
-                foreach (MapObject map in FindObjectsOfType<MapObject>()) { map.OnAfterExitPlayMode(); }
+                foreach (Map map in FindObjectsOfType<Map>()) { map.OnAfterExitPlayMode(); }
                 OnEnable();
             }
         }
@@ -140,7 +140,7 @@ namespace MetroTileEditor.Editors
             {
                 if (currentMapObj == null || Selection.activeObject != currentMapObj.gameObject)
                 {
-                    MapObject map = Selection.activeGameObject.GetComponent<MapObject>();
+                    Map map = Selection.activeGameObject.GetComponent<Map>();
                     if (map)
                     {
                         if (currentMapObj) currentMapObj.SetInactive();
@@ -493,7 +493,7 @@ namespace MetroTileEditor.Editors
         {
             GameObject map = (GameObject)Instantiate(Resources.Load("MapObject"));
             map.name = name;
-            map.GetComponent<MapObject>().init();
+            map.GetComponent<Map>().init();
             Selection.activeObject = map;
         }
 
