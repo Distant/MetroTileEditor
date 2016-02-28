@@ -227,6 +227,21 @@ namespace MetroTileEditor.Editors
 
                 EditorGUILayout.TextField("Selected Object", mouseOverObj == null ? "Nothing Selected" : mouseOverObj.name);
 
+                if (GUILayout.Button("Undo"))
+                {
+                    currentMapObj.Undo();
+                }
+
+                if (GUILayout.Button("Redo"))
+                {
+                    currentMapObj.Redo();
+                }
+
+                if (GUILayout.Button("Trim Map"))
+                {
+                    currentMapObj.TrimMap();
+                }
+
                 //grid stuff
                 currentMapObj.GridEnabled = EditorGUILayout.BeginToggleGroup("Enable Grid", currentMapObj.GridEnabled);
 
