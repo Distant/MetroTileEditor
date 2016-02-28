@@ -31,9 +31,20 @@ namespace MetroTileEditor
             }
         }
 
+        private static Dictionary<string, Texture2D> previews;
+        public static Dictionary<string, Texture2D> Previews
+        {
+            get
+            {
+                if (previews == null) FindMaterials();
+                return previews;
+            }
+        }
+
         public static void FindMaterials()
         {
             materials = new Dictionary<string, Material>();
+            previews = new Dictionary<string, Texture2D>();
 
             Texture2D[] sheets = Resources.LoadAll<Texture2D>("Materials/TileSheets");
             foreach (Texture2D sheet in sheets.Where(sheet => !sheet.name.Contains("_normal") && !sheet.name.Contains("_emission")))
@@ -52,6 +63,11 @@ namespace MetroTileEditor
                         tex.filterMode = FilterMode.Point;
                         tex.SetPixels(sheet.GetPixels(i * size, j * size, size, size));
                         tex.Apply();
+                        
+                        Texture2D texPrev = new Texture2D(size, size, TextureFormat.ARGB32, false, true);
+                        texPrev.filterMode = FilterMode.Point;
+                        texPrev.SetPixels(sheet.GetPixels(i * size, j * size, size, size));
+                        texPrev.Apply();
 
                         Texture2D normalSheet = null;
                         for (int t = 0; t < sheets.Length; t++)
@@ -105,6 +121,7 @@ namespace MetroTileEditor
                         mat.SetFloat("_Mode", 1);
                         mat.EnableKeyword("_ALPHATEST_ON");
                         materials.Add(mat.name, mat);
+                        previews.Add(mat.name, texPrev);
                     }
                 }
             }
