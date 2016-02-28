@@ -63,7 +63,6 @@ namespace MetroTileEditor
 
         public void init()
         {
-            Debug.Log("init");
             mapName = name;
             gridData = new GridData(false, (int)DEFAULT_GRID_SIZE.x, (int)DEFAULT_GRID_SIZE.y, (int)DEFAULT_GRID_SIZE.z, 2);
             blockArray = new BlockDataArray(gridData.sizeX, gridData.sizeY, gridData.sizeZ);
