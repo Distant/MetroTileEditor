@@ -47,7 +47,7 @@ namespace MetroTileEditor
             previews = new Dictionary<string, Texture2D>();
 
             Texture2D[] sheets = Resources.LoadAll<Texture2D>("Materials/TileSheets");
-            foreach (Texture2D sheet in sheets.Where(sheet => !sheet.name.Contains("_normal") && !sheet.name.Contains("_emission")))
+            foreach (Texture2D sheet in sheets.Where(sheet => !sheet.name.Contains("_normal") && !sheet.name.Contains("_height") && !sheet.name.Contains("_emission")))
             {
                 int size;
                 string[] parameters = sheet.name.Split('_');
@@ -97,6 +97,22 @@ namespace MetroTileEditor
                             mat.SetTexture("_BumpMap", norm);
                         }
 
+
+                        Texture2D heightSheet = null;
+                        for (int t = 0; t < sheets.Length; t++)
+                        {
+                            if (sheets[t].name.Equals(sheet.name + "_height")) heightSheet = sheets[t];
+                        }
+
+                        if (heightSheet != null)
+                        {
+                            Texture2D height = new Texture2D(size, size, TextureFormat.ARGB32, false);
+                            height.filterMode = FilterMode.Point;
+                            height.SetPixels(heightSheet.GetPixels(i * size, j * size, size, size));
+                            height.Apply();
+                            mat.SetTexture("_ParallaxMap", height);
+                        }
+
                         Texture2D emissionSheet = null;
                         for (int t = 0; t < sheets.Length; t++)
                         {
@@ -116,7 +132,7 @@ namespace MetroTileEditor
                         }
 
                         mat.mainTexture = tex;
-                        mat.shaderKeywords = new string[2] { "_NORMALMAP", "_EMISSIONMAP" };
+                        mat.shaderKeywords = new string[3] { "_NORMALMAP", "_EMISSIONMAP", "_PARALLAX"};
                         mat.name = sheet.name + "_" + i + "_" + j;
                         mat.SetFloat("_Mode", 1);
                         mat.EnableKeyword("_ALPHATEST_ON");
