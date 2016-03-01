@@ -452,6 +452,15 @@ namespace MetroTileEditor.Editors
                                     }
                                 }
                             }
+
+                            else if (mouseOverObj == currentMapObj.GridRenderer.gameObject && currentMapObj.GridEnabled)
+                            {
+                                if (Event.current.type == EventType.MouseDown)
+                                {
+                                    gridPoint = new Vector2((int)(hit.point.x), (int)(hit.point.y));
+                                    currentMapObj.AddBlock(new Vector3(gridPoint.x, gridPoint.y, currentMapObj.SelectedLayer), selectedBlockType);
+                                }
+                            }
                         }
                     }
 
