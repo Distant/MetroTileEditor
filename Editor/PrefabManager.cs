@@ -7,7 +7,7 @@ public static class PrefabManager
     public static GameObject[] blockPrefabs;
     public static Texture2D[] blockPreviews;
 
-    public static void LoadPrefabs()
+    public static void RefreshPrefabs()
     {
         blockPrefabs = Resources.LoadAll<GameObject>("Blocks/Prefabs") as GameObject[];
         blockPreviews = new Texture2D[blockPrefabs.Length];

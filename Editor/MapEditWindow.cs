@@ -98,7 +98,7 @@ namespace MetroTileEditor.Editors
         {
             EditorApplication.playmodeStateChanged += OnPlayModeChanged;
 
-            PrefabManager.LoadPrefabs();
+            PrefabManager.RefreshPrefabs();
 
             SceneView.onSceneGUIDelegate -= OnSceneGUI;
             SceneView.onSceneGUIDelegate += OnSceneGUI;
@@ -305,7 +305,7 @@ namespace MetroTileEditor.Editors
                 }
                 GUILayout.EndHorizontal();
 
-                if (GUILayout.Button("Refresh Materials")) { TextureManager.FindMaterials(); PrefabManager.LoadPrefabs(); }
+                if (GUILayout.Button("Refresh Materials")) { TextureManager.FindMaterials(); PrefabManager.RefreshPrefabs(); }
 
                 // saving/loading stuff
 
@@ -489,7 +489,6 @@ namespace MetroTileEditor.Editors
             Vector3 newRaw = g.transform.position + SceneUtils.GetOffset(direction) * 2;
             currentMapObj.AddBlock(new Vector3(newRaw.x, newRaw.y, (newRaw.z + 1)), selectedBlockType);
         }
-
 
         private string GetMaterialId(RaycastHit hit, GameObject g)
         {
