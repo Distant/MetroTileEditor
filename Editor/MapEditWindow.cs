@@ -19,6 +19,8 @@ namespace MetroTileEditor.Editors
             PlaceBlocks,
             RotateBlocks,
             PaintBlocks,
+            FillTexture,
+            ReplaceTexture,
             RotateTexture,
             DeleteBlocks,
             ColourPick,
@@ -45,6 +47,7 @@ namespace MetroTileEditor.Editors
         private string selectedMaterialId;
 
         public EditMode editMode = EditMode.PlaceBlocks;
+        public EditMode lastPaintMode;
         private string selectedBlockType = "CubeBlock";
 
         [SerializeField]
@@ -130,6 +133,10 @@ namespace MetroTileEditor.Editors
         {
             if (newMode == EditMode.Disabled) Tools.current = lastTool;
             else lastTool = Tools.current;
+            if (newMode == EditMode.PaintBlocks || newMode == EditMode.ReplaceTexture || newMode == EditMode.FillTexture)
+            {
+                lastPaintMode = newMode;
+            }
         }
 
         public void CheckMapSelection()
@@ -264,48 +271,54 @@ namespace MetroTileEditor.Editors
 
                 EditorGUILayout.EndToggleGroup();
 
-                // texture stuff
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Selected Texture");
-                GUILayout.Label(TextureManager.GetMaterialOrDefault(selectedMaterialId).mainTexture);
-                GUILayout.EndHorizontal();
-
-                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-
                 GUIStyle style = new GUIStyle(GUI.skin.button);
                 style.padding = new RectOffset(0, 0, 0, 0);
 
-                GUILayout.BeginHorizontal();
-                int index = 0;
-                foreach (string id in TextureManager.Materials.Keys)
+                // texture stuff
+                if (editMode == EditMode.PaintBlocks || editMode == EditMode.ReplaceTexture || editMode == EditMode.FillTexture)
                 {
-                    GUIContent c = new GUIContent();
-                    if (TextureManager.Previews.ContainsKey(id))
-                    {
-                        c.image = TextureManager.Previews[id];
-                    }
-                    if (GUILayout.Button(c, style, GUILayout.Width(25), GUILayout.Height(25))) { selectedMaterialId = id; editMode = EditMode.PaintBlocks; }
-                    index++;
-                    if (index % 11 == 0) { GUILayout.EndHorizontal(); GUILayout.BeginHorizontal(); }
-                }
-                GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Selected Texture");
+                    GUILayout.Label(TextureManager.GetMaterialPreviewOrDefault(selectedMaterialId));
+                    GUILayout.EndHorizontal();
 
-                EditorGUILayout.EndScrollView();
+                    scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
+                    GUILayout.BeginHorizontal();
+                    int index = 0;
+                    foreach (string id in TextureManager.Materials.Keys)
+                    {
+                        GUIContent c = new GUIContent();
+                        if (TextureManager.Previews.ContainsKey(id))
+                        {
+                            c.image = TextureManager.Previews[id];
+                        }
+                        if (GUILayout.Button(c, style, GUILayout.Width(25), GUILayout.Height(25))) { selectedMaterialId = id; editMode = EditMode.PaintBlocks; }
+                        index++;
+                        if (index % 11 == 0) { GUILayout.EndHorizontal(); GUILayout.BeginHorizontal(); }
+                    }
+                    GUILayout.EndHorizontal();
+
+                    EditorGUILayout.EndScrollView();
+                }
 
                 // block stuff
-                GUILayout.Label("Selected Block: " + selectedBlockType);
-                GUILayout.BeginHorizontal();
-                int i = 0;
-                foreach (GameObject g in PrefabManager.blockPrefabs)
+                if (editMode == EditMode.PlaceBlocks)
                 {
-                    GUIContent c = new GUIContent();
-                    c.image = PrefabManager.blockPreviews[i];
-                    if (GUILayout.Button(c, style, GUILayout.Width(25), GUILayout.Height(25))) { selectedBlockType = g.name; editMode = EditMode.PlaceBlocks; }
-                    i++;
+                    GUILayout.Label("Selected Block: " + selectedBlockType);
+                    GUILayout.BeginHorizontal();
+                    int i = 0;
+                    foreach (GameObject g in PrefabManager.blockPrefabs)
+                    {
+                        GUIContent c = new GUIContent();
+                        c.image = PrefabManager.blockPreviews[i];
+                        if (GUILayout.Button(c, style, GUILayout.Width(25), GUILayout.Height(25))) { selectedBlockType = g.name; editMode = EditMode.PlaceBlocks; }
+                        i++;
+                    }
+                    GUILayout.EndHorizontal();
                 }
-                GUILayout.EndHorizontal();
 
-                if (GUILayout.Button("Refresh Materials")) { TextureManager.FindMaterials(); PrefabManager.RefreshPrefabs(); }
+                if (GUILayout.Button("Refresh Resources")) { TextureManager.FindMaterials(); PrefabManager.RefreshPrefabs(); }
 
                 // saving/loading stuff
 
@@ -444,16 +457,18 @@ namespace MetroTileEditor.Editors
                                     switch (editMode)
                                     {
                                         case EditMode.PaintBlocks: block.SetMaterial(hit, selectedMaterialId); currentMapObj.UpdateBlock(block.gameObject); break;
+                                        case EditMode.FillTexture: block.SetAllMaterials(selectedMaterialId, false); currentMapObj.UpdateBlock(block.gameObject); break;
+                                        case EditMode.ReplaceTexture: block.ReplaceMaterial(hit, selectedMaterialId); currentMapObj.UpdateBlock(block.gameObject); break;
                                         case EditMode.RotateTexture: block.RotateTexture(hit); break;
                                         case EditMode.PlaceBlocks: PlaceBlock(hitDirection, mouseOverObj); break;
                                         case EditMode.DeleteBlocks: currentMapObj.DeleteBlock(mouseOverObj); break;
-                                        case EditMode.ColourPick: selectedMaterialId = GetMaterialId(hit, mouseOverObj); editMode = EditMode.PaintBlocks; break;
+                                        case EditMode.ColourPick: selectedMaterialId = GetMaterialId(hit, mouseOverObj); editMode = lastPaintMode; break;
                                         case EditMode.SelectBlock: SelectBlock(block); break;
                                     }
                                 }
                             }
 
-                            else if (mouseOverObj == currentMapObj.GridRenderer.gameObject && currentMapObj.GridEnabled)
+                            else if (editMode == EditMode.PlaceBlocks && mouseOverObj == currentMapObj.GridRenderer.gameObject && currentMapObj.GridEnabled)
                             {
                                 if (Event.current.type == EventType.MouseDown)
                                 {
