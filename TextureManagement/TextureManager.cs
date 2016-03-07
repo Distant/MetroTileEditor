@@ -152,6 +152,12 @@ namespace MetroTileEditor
             return Materials.TryGetValue(materialID ?? string.Empty, out m) ? m : DefaultMat;
         }
 
+        public static Texture2D GetMaterialPreviewOrDefault(string materialID)
+        {
+            Texture2D m;
+            return Previews.TryGetValue(materialID ?? string.Empty, out m) ? m : new Texture2D(1,1);
+        }
+
         public class TexturePacker
         {
             private struct Index
