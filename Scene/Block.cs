@@ -51,6 +51,32 @@ namespace MetroTileEditor
             }
         }
 
+        public void SetAllMaterials(string materialID, bool includeEmpty)
+        {
+            if (data != null)
+            {
+                for (int i = 0; i < data.materialIDs.Length; i++)
+                {
+                    if (includeEmpty || (!includeEmpty && !string.IsNullOrEmpty(data.materialIDs[i])))
+                    data.materialIDs[i] = materialID;
+                }
+            }
+        }
+
+        public void ReplaceMaterial(RaycastHit hit, string materialID)
+        {
+            int index = GetSubMeshIndex(hit);
+            if (data != null && index != -1)
+            { 
+                string oldMatID = data.materialIDs[index] = materialID;
+                for (int i = 0; i < data.materialIDs.Length; i++)
+                {
+                    if (data.materialIDs[i] == oldMatID)
+                        data.materialIDs[i] = materialID;
+                }
+            }
+        }
+
         public string GetMaterialID(RaycastHit hit)
         {
             int index = GetSubMeshIndex(hit);
